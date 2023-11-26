@@ -27,9 +27,9 @@ public class ConnectionManager {
                 removes.add(connection);
             }
         }
-//        for (var c: removes){
-//            connectionConcurrentHashMap.remove(c.username);
-//        }
+        for (var c: removes){
+            connectionConcurrentHashMap.remove(c.username);
+        }
     }
     public void broadcastBoard(String name, LoadMessage loadMessage) throws IOException {
         var removes = new ArrayList<Connection>();

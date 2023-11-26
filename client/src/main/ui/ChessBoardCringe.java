@@ -109,6 +109,7 @@ public class ChessBoardCringe {
         System.out.print(SET_BG_COLOR_LIGHT_GREY);
         System.out.print("  ");
         System.out.print(SET_BG_COLOR_DARK_GREY);
+        System.out.println();
     }
 
     public static void white() {
@@ -174,6 +175,7 @@ public class ChessBoardCringe {
         System.out.print(SET_BG_COLOR_LIGHT_GREY);
         System.out.print("  ");
         System.out.print(SET_BG_COLOR_DARK_GREY);
+        System.out.println();
     }
     public void updateUIBoard(ChessGameImplmentation chessGameImplmentation){
 //        board[moveImplmentation.getEndPosition().getRow()-1][moveImplmentation.getEndPosition().getColumn()-1] = board[moveImplmentation.getStartPosition().getRow()-1][moveImplmentation.getStartPosition().getColumn()-1];

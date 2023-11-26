@@ -40,7 +40,7 @@ import java.util.Collection;
         public WSHANDLER(Connection connection){
             this.connection = connection;
         }
-        WS.ConnectionManager connectionManager = new ConnectionManager();
+        public final WS.ConnectionManager connectionManager = new ConnectionManager();
 
         @OnWebSocketMessage
         public void onMessage(Session session, String message) throws Exception {
@@ -76,19 +76,15 @@ import java.util.Collection;
 //           }else{
 //               gameUserID = game.getGameImplmentation().blackUsername;
 //           }
-               game.getGameImplmentation().whiteUsername = command.getUsername();
-               LoadMessage loadMessage = new LoadMessage(game.getGameImplmentation());
-            try {
-                session.getRemote().sendString(new Gson().toJson(loadMessage));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-               String message = (command.getUsername() + " has joined as " + command.getColor());
-               NotificationMessage notificationMessage = new NotificationMessage(message);
-               //session.getRemote().sendString(new Gson().toJson(notificationMessage));
-               // notification
-             connectionManager.add(command.getUsername(), session);
-             connectionManager.broadcast(command.getUsername(),notificationMessage);
+           game.getGameImplmentation().whiteUsername = command.getUsername();
+           LoadMessage loadMessage = new LoadMessage(game.getGameImplmentation());
+           session.getRemote().sendString(new Gson().toJson(loadMessage));
+
+            connectionManager.add(command.getUsername(), session);
+            String message = (command.getUsername() + " has joined as " + command.getColor());
+            NotificationMessage notificationMessage = new NotificationMessage(message);
+           //session.getRemote().sendString(new Gson().toJson(notificationMessage));
+            connectionManager.broadcast(command.getUsername(),notificationMessage);
         }
         public void observe(Connection connection, JoinPlayer command){
 
@@ -103,7 +99,7 @@ import java.util.Collection;
                 gameImplmentation.makeMove(moveImplmentation);
                 LoadMessage loadMessage = new LoadMessage(gameImplmentation);
                 session.getRemote().sendString(new Gson().toJson(loadMessage));
-                connectionManager.add(command.getUsername(), session);
+                //connectionManager.add(command.getUsername(), session);
                 connectionManager.broadcastBoard(command.getUsername(), loadMessage);
             }
             else{
