@@ -3,13 +3,17 @@ package ui;
 import Model.GameModel;
 import Model.UserModel;
 import Response.*;
+import chess.ChessGame.TeamColor;
 import chess.ChessGameImplmentation;
+import chess.ChessMove;
+import chess.ChessMoveImplmentation;
 import chess.ChessPositionImplmentation;
-import webSocketMessages.userCommands.JoinPlayer;
-import webSocketMessages.userCommands.MakeMove;
+import webSocketMessages.userCommands.*;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Objects;
 
 public class ChessClient implements NotificationHandler {
     public ServerFacade server;
@@ -21,12 +25,14 @@ public class ChessClient implements NotificationHandler {
         webSocket = new WebSocketClient("ws://localhost:8080/connect", this);
     }
     Boolean logged_in = false;
+    Boolean in_game = false;
     UserModel user;
     ChessBoardCringe chessBoardCringe = new ChessBoardCringe();
-    String color;
+    public String color;
 
 
     ChessGameImplmentation game;
+    TeamColor teamColor = null;
 
     public String userAuth;
     public String username;
@@ -60,7 +66,7 @@ public class ChessClient implements NotificationHandler {
             String temp = login(length);
             System.out.println(temp);
         }
-    }else {
+    }else if (logged_in && !in_game){
             if (commandLine.toLowerCase().contains("help")){
                 return  "Help: Lists possible commands you can execute \n" +
                         "Logout: Returns you to Main Menu \n" +
@@ -80,18 +86,48 @@ public class ChessClient implements NotificationHandler {
             }
             else if (commandLine.toLowerCase().contains("join")){
                 String temp = join(length);
+                //in_game = true;
                 System.out.println(temp);
             }
             else if (commandLine.toLowerCase().contains("list")){
                 String temp = listGames();
                 System.out.println(temp);
             }
-            else if (commandLine.toLowerCase().contains("move")){
+
+
+        }else if (in_game) {
+//            if (game.isInCheckmate(teamColor)){
+//                System.out.println("You are in checkmate gg ez");
+//            }
+//            if (game.isInCheck(teamColor)){
+//                System.out.println("You are in check");
+//            }
+            if (commandLine.toLowerCase().contains("help")){
+                return  "Help: Lists possible commands you can execute \n" +
+                        "Move: Make a valid move \n" +
+                        "High: Highlight valid moves\n"+
+                        "Resign: Resign from the game\n"+
+                        "Leave: Leave the game\n"
+                        ;
+            }
+             else if (commandLine.toLowerCase().contains("move")){
                 String temp = makeMove(Arrays.toString(length));
                 System.out.println(temp);
+            } else if (commandLine.toLowerCase().contains("high")) {
+                String temp = highlightMoves(color, Arrays.toString(length));
+                System.out.println(temp);
+            }else if (commandLine.toLowerCase().contains("leave")){
+                 leavegame();
+                 in_game =false;
             }
+             else if (commandLine.toLowerCase().contains("resign")){
+                resign();
+                //in_game =false;
+            }
+            else if (commandLine.toLowerCase().contains("redraw")){
+                redraw();
 
-
+            }
         }
         return "";
     }
@@ -107,6 +143,8 @@ public class ChessClient implements NotificationHandler {
         RegisterResponse response = server.register(args[1],args[2],args[3]);
         if(response.getCode() ==200){
             logged_in =true;
+            userAuth = response.getAuthToken();
+            username = args[1];
             return ("New User Registered!!\n" +
                     "Your AuthToken is "+ response.getAuthToken());
         }
@@ -151,20 +189,25 @@ public class ChessClient implements NotificationHandler {
             JoinGameResponse response = server.joinGame(args[1]);
             if(response.getCode() ==200){
                 //add the ws command
+                JoinObserver observer = new JoinObserver(UserGameCommand.CommandType.JOIN_OBSERVER,userAuth,args[1],username);
+                webSocket.send(observer);
                 return ("Congrats you joined  "+ args[1]);
             }
         } else if (args.length ==3) {
             JoinGameResponse response = server.joinGamePlayer(args[1], args[2]);
             if (response.getCode() == 200) {
+                in_game=true;
                 gameID = args[1];
-                JoinPlayer command = new JoinPlayer(args[1],args[2],username, userAuth);
-                webSocket.send(command);
-                if (args[2].toLowerCase().equals("white")){
+                if (args[2].equalsIgnoreCase("white")){
                     color = "white";
+                    teamColor = TeamColor.WHITE;
                 }
-                if (args[2].toLowerCase().equals("black")){
+                if (args[2].equalsIgnoreCase("black")){
                     color = "black";
+                    teamColor = TeamColor.BLACK;
                 }
+                JoinPlayer command = new JoinPlayer(args[1],teamColor,username, userAuth);
+                webSocket.send(command);
                 return ("\n Congrats you joined  " + args[1] +" as "+ args[2]);
             }
         }
@@ -191,18 +234,57 @@ public class ChessClient implements NotificationHandler {
             }
 
     }
+    public String highlightMoves(String color, String move){
+        if (move.length()!= 10){
+            return "That isnt the correct format";
+        }
+        ChessPositionImplmentation start = postionFromChar(move.substring(7,9));
+        Collection<ChessMove> moves =  game.validMoves(start);
+        if (color == "white"){
+            ChessBoardCringe.Highwhite(moves);
+
+        }
+        if (color == "black"){
+            ChessBoardCringe.Highblack(moves);
+        }
+        return null;
+    }
+    public void leavegame() throws Exception {
+        Leave command = new Leave(UserGameCommand.CommandType.LEAVE,userAuth,gameID,username);
+        webSocket.send(command);
+    }
+    public void resign() throws Exception {
+        Resign command = new Resign(UserGameCommand.CommandType.RESIGN,userAuth,gameID,username);
+        webSocket.send(command);
+    }
     public String makeMove(String move) throws Exception {
+        if (move.length()!= 12){
+            return "That isnt the correct format";
+        }
         ChessPositionImplmentation start = postionFromChar(move.substring(7,9));
         ChessPositionImplmentation end = postionFromChar(move.substring(9,11));
-        //ChessMoveImplmentation moveImplmentation = new ChessMoveImplmentation(start,end);
-        MakeMove command = new MakeMove(gameID,userAuth,username,start,end);
+        ChessMoveImplmentation moveImplmentation = new ChessMoveImplmentation(start,end);
+        if (game.validMoves(start).isEmpty()){
+            return "You are in checkmate pls leave the game nerd             ";
+        }
+        if (!game.validMoves(start).contains(moveImplmentation)){
+            return "That move is not valid";
+        }
+        game.makeMove(moveImplmentation);
+        MakeMove command = new MakeMove(gameID,userAuth,username,moveImplmentation);
         webSocket.send(command);
-        //chessBoardCringe.updateUIBoard(moveImplmentation);
-        //chessBoardCringe.white();
         return  null;
     }
-    public ChessGameImplmentation updategame(){
-        return null;
+    public void redraw(){
+        if (color != null){
+            if (color.equals("white")){
+                ChessBoardCringe.white();
+
+            }
+            if (Objects.equals(color, "black")){
+                ChessBoardCringe.black();
+            }
+        }
     }
 
 
@@ -217,12 +299,13 @@ public class ChessClient implements NotificationHandler {
     public void updateBoard(ChessGameImplmentation gameImplmentation) {
         this.game = gameImplmentation;
         chessBoardCringe.updateUIBoard(gameImplmentation);
-        if (color.equals("white")){
+        if (color ==null){
             ChessBoardCringe.white();
-        }else {
+        }else if (color.equals("black")) {
             ChessBoardCringe.black();
+        }else{
+            ChessBoardCringe.white();
         }
-
 
     }
 
@@ -235,6 +318,8 @@ public class ChessClient implements NotificationHandler {
 
     @Override
     public void error(String error) {
-
+//        if (error != null){
+//            System.out.println(error);
+//        }
     }
 }

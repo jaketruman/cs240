@@ -6,19 +6,18 @@ import chess.ChessGameImplmentation;
 import chess.ChessPositionImplmentation;
 import chess.pieces.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
+import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import webSocketMessages.serverMessages.ErrorMessgae;
+import webSocketMessages.serverMessages.ErrorMessage;
 import webSocketMessages.serverMessages.NotificationMessage;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.UserGameCommand;
 
 import javax.websocket.*;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.URI;
 
 
@@ -53,7 +52,7 @@ public class WebSocketClient extends Endpoint {
                         notificationHandler.message(new Gson().fromJson(message, NotificationMessage.class).message);
 
                     case ERROR:
-                        notificationHandler.error(new Gson().fromJson(message, ErrorMessgae.class).error);
+                        notificationHandler.error(new Gson().fromJson(message, ErrorMessage.class).toString());
                 }
 
             }catch (Exception e){
@@ -73,14 +72,19 @@ public class WebSocketClient extends Endpoint {
     public void onOpen(javax.websocket.Session session, EndpointConfig endpointConfig) {
 
     }
+
     public ChessGameImplmentation json2game(String jsongame) throws JsonProcessingException {
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(ChessGameImplmentation.class, new GameAdapt());
         Gson gson = builder.create();
         return gson.fromJson(jsongame,ChessGameImplmentation.class);
 
-
-
+    }
+    class ListAdapter implements JsonDeserializer<ChessGame> {
+        @Override
+        public ChessGame deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            return jsonDeserializationContext.deserialize(jsonElement,ChessGameImplmentation.class);
+        }
     }
 
     public static class GameAdapt extends TypeAdapter<ChessGameImplmentation> {
@@ -97,7 +101,7 @@ public class WebSocketClient extends Endpoint {
             jsonReader.beginObject();
             while (jsonReader.hasNext()) {
                 String temp = jsonReader.nextName();
-                if (temp.equals("gameImplmentation")) {
+                if (temp.equals("game")) {
                     jsonReader.beginObject();
                     while (jsonReader.hasNext()) {
                         String temp2 = jsonReader.nextName();

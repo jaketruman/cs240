@@ -1,12 +1,10 @@
 package ui;
 
-import chess.ChessBoardImplmentation;
-import chess.ChessGame;
-import chess.ChessGameImplmentation;
-import chess.ChessPiece;
+import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Random;
 
 import static ui.EscapeSequences.*;
@@ -30,35 +28,20 @@ public class ChessBoardCringe {
     };
 
 
-//    public static void main(String[] args) {
-//        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-//        if (args.toString() == "BLACK"){
-//            black(out);
-//        }
-//        else {
-//            white(out);
-//        }
-//        white(out);
-//        System.out.println();
-//        System.out.println();
-//        black(out);
-//    }
-//
-//
 
     public static void black() {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
         System.out.print(SET_TEXT_COLOR_WHITE);
         System.out.print(SET_BG_COLOR_LIGHT_GREY);
-        System.out.print("     ");
+        System.out.print("    ");
         for (int i = 0; i < 8; i++) {
             System.out.print(SET_BG_COLOR_LIGHT_GREY);
             char x = (char) ('a' + i);
             System.out.print(x + "  ");
         }
         System.out.print(SET_BG_COLOR_LIGHT_GREY);
-        System.out.print(" ");
+        System.out.print("  ");
         System.out.print(SET_BG_COLOR_DARK_GREY);
         System.out.println();
         for (int i = 0; i < 8; i++) {
@@ -96,7 +79,7 @@ public class ChessBoardCringe {
                 }
 
             }
-            System.out.print(SET_BG_COLOR_DARK_GREY);
+            System.out.print(SET_BG_COLOR_BLACK);
             System.out.println();
         }
         System.out.print(SET_BG_COLOR_LIGHT_GREY);
@@ -108,7 +91,7 @@ public class ChessBoardCringe {
         }
         System.out.print(SET_BG_COLOR_LIGHT_GREY);
         System.out.print("  ");
-        System.out.print(SET_BG_COLOR_DARK_GREY);
+        System.out.print(SET_BG_COLOR_BLACK);
         System.out.println();
     }
 
@@ -137,17 +120,17 @@ public class ChessBoardCringe {
                 }
                 if (isBlack) {
                     System.out.print(SET_BG_COLOR_MAGENTA);
-                    if (board[7 - i][7 - j] != EMPTY) {
+                    if (board[7 - i][j] != EMPTY) {
                         System.out.print(SET_TEXT_COLOR_WHITE);
-                        System.out.print(board[7 - i][7 - j]);
+                        System.out.print(board[7 - i][ j]);
                     } else {
                         System.out.print(EMPTY);
                     }
                 } else {
                     System.out.print(SET_BG_COLOR_DARK_GREY);
-                    if (board[7 - i][7 - j] != EMPTY) {
+                    if (board[7 - i][j] != EMPTY) {
                         System.out.print(SET_TEXT_COLOR_WHITE);
-                        System.out.print(board[7 - i][7 - j]);
+                        System.out.print(board[7 - i][j]);
                     } else {
                         System.out.print(EMPTY);
                     }
@@ -161,7 +144,7 @@ public class ChessBoardCringe {
                 }
 
             }
-            System.out.print(SET_BG_COLOR_DARK_GREY);
+            System.out.print(SET_BG_COLOR_BLACK);
             System.out.println();
         }
         System.out.print(SET_BG_COLOR_LIGHT_GREY);
@@ -174,7 +157,7 @@ public class ChessBoardCringe {
         }
         System.out.print(SET_BG_COLOR_LIGHT_GREY);
         System.out.print("  ");
-        System.out.print(SET_BG_COLOR_DARK_GREY);
+        System.out.print(SET_BG_COLOR_BLACK);
         System.out.println();
     }
     public void updateUIBoard(ChessGameImplmentation chessGameImplmentation){
@@ -184,7 +167,6 @@ public class ChessBoardCringe {
         ChessBoardImplmentation boardImplmentation = (ChessBoardImplmentation) chessGameImplmentation.getBoard();
         for(int i =1; i<9;i++){
             for(int j =1; j<9; j++){
-
                 if (boardImplmentation.getBoard()[i][j] == null){
                     board[j-1][i-1] = EMPTY;
                 }
@@ -228,7 +210,213 @@ public class ChessBoardCringe {
             }
         }
     }
+    public static void Highwhite(Collection<ChessMove> moves) {
+        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        out.print(ERASE_SCREEN);
+        System.out.print(SET_TEXT_COLOR_WHITE);
+        System.out.print(SET_BG_COLOR_LIGHT_GREY);
+        System.out.print("    ");
+        for (int i = 0; i < 8; i++) {
+            System.out.print(SET_BG_COLOR_LIGHT_GREY);
+            char x = (char) ('a' + i);
+            System.out.print(x + "  ");
+        }
+        System.out.print("  ");
+        System.out.print(SET_BG_COLOR_DARK_GREY);
+        System.out.println();
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                boolean isBlack = (i + j) % 2 == 1;
+                if (j == 0) {
+                    System.out.print(SET_BG_COLOR_LIGHT_GREY);
+                    System.out.print(" ");
+                    System.out.print(8-i);
+                    System.out.print(" ");
+                }
+                if (isBlack) {
+                    //System.out.print(SET_BG_COLOR_MAGENTA);
+                    if (board[7 - i][j] != EMPTY) {
+                        String background = SET_BG_COLOR_MAGENTA;
+                        for (ChessMove x :moves){
+                            if (8-x.getEndPosition().getRow() == i && x.getEndPosition().getColumn()-1 ==j){
+                                background = SET_BG_COLOR_GREEN;
+                            }
+                            if (8-x.getStartPosition().getRow() ==i && x.getStartPosition().getColumn()-1 ==j){
+                                background = SET_BG_COLOR_YELLOW;
+                            }
+                        }
+                        System.out.print(background);
+                        System.out.print(board[7 - i][ j]);
+                    } else {
+                        String background = SET_BG_COLOR_MAGENTA;
+                        for (ChessMove x :moves){
+                            if (8-x.getEndPosition().getRow() ==i && x.getEndPosition().getColumn()-1 ==j){
+                                background = SET_BG_COLOR_GREEN;
+                            }
 
+                        }
+                        System.out.print(background);
+                        //System.out.print(EMPTY);
+                        System.out.print(EMPTY);
+                    }
+                } else {
+                    //System.out.print(SET_BG_COLOR_DARK_GREY);
+                    if (board[7 - i][j] != EMPTY) {
+                        String background = SET_BG_COLOR_DARK_GREY;
+                        for (ChessMove x :moves){
+                            if (8-x.getEndPosition().getRow() == i && x.getEndPosition().getColumn()-1 ==j){
+                                background = SET_BG_COLOR_GREEN;
+                            }
+                            if (8-x.getStartPosition().getRow() == i && x.getStartPosition().getColumn()-1 ==j){
+                                background = SET_BG_COLOR_YELLOW;
+                            }
+                        }
+                        System.out.print(background);
+                        System.out.print(SET_TEXT_COLOR_WHITE);
+                        System.out.print(board[7 - i][j]);
+                    } else {
+                        String background = SET_BG_COLOR_DARK_GREY;
+                        for (ChessMove x :moves){
+                            if (8-x.getEndPosition().getRow()== i && x.getEndPosition().getColumn()-1 ==j){
+                                background = SET_BG_COLOR_GREEN;
+                            }
+
+                        }
+                        System.out.print(background);
+                        System.out.print(EMPTY);
+                    }
+                }
+                System.out.print(SET_TEXT_COLOR_WHITE);
+                if (j == 7) {
+                    System.out.print(SET_BG_COLOR_LIGHT_GREY);
+                    System.out.print(" ");
+                    System.out.print(8-i);
+                    System.out.print(" ");
+                }
+
+            }
+            System.out.print(SET_BG_COLOR_DARK_GREY);
+            System.out.println();
+        }
+        System.out.print(SET_BG_COLOR_LIGHT_GREY);
+        System.out.print("    ");
+
+        for (int i = 0; i < 8; i++) {
+            System.out.print(SET_BG_COLOR_LIGHT_GREY);
+            char x = (char) ('a' + i);
+            System.out.print( x+ "  " );
+        }
+        System.out.print(SET_BG_COLOR_LIGHT_GREY);
+        System.out.print("  ");
+        System.out.print(SET_BG_COLOR_DARK_GREY);
+        System.out.println();
+    }
+
+    public static void Highblack(Collection<ChessMove> moves) {
+        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        out.print(ERASE_SCREEN);
+        System.out.print(SET_TEXT_COLOR_WHITE);
+        System.out.print(SET_BG_COLOR_LIGHT_GREY);
+        System.out.print("    ");
+        for (int i = 0; i < 8; i++) {
+            System.out.print(SET_BG_COLOR_LIGHT_GREY);
+            char x = (char) ('a' + i);
+            System.out.print(x + "  ");
+        }
+        System.out.print(SET_BG_COLOR_LIGHT_GREY);
+        System.out.print("  ");
+        System.out.print(SET_BG_COLOR_DARK_GREY);
+        System.out.println();
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                boolean isBlack = (i + j) % 2 == 1;
+                if (j == 0) {
+                    System.out.print(SET_BG_COLOR_LIGHT_GREY);
+                    System.out.print(" ");
+                    System.out.print(1+i);
+                    System.out.print(" ");
+                }
+                if (isBlack) {
+                    System.out.print(SET_BG_COLOR_MAGENTA);
+                    if (board[i][j] != EMPTY) {
+                        String background = SET_BG_COLOR_MAGENTA;
+                        for (ChessMove x :moves){
+                            if (x.getEndPosition().getRow()-1 == i && x.getEndPosition().getColumn() -1==j){
+                                background = SET_BG_COLOR_GREEN;
+                            }
+                            if (x.getStartPosition().getRow()-1 == i && x.getStartPosition().getColumn()-1 ==j){
+                                background = SET_BG_COLOR_YELLOW;
+                            }
+                        }
+                        System.out.print(background);
+                        System.out.print(SET_TEXT_COLOR_WHITE);
+                        System.out.print(board[i][j]);
+                    } else {
+                        String background = SET_BG_COLOR_MAGENTA;
+                        for (ChessMove x :moves){
+                            if (x.getEndPosition().getRow()-1 == i && x.getEndPosition().getColumn()-1==j){
+                                background = SET_BG_COLOR_GREEN;
+                            }
+                            if (x.getStartPosition().getRow()-1 == i && x.getStartPosition().getColumn()-1==j){
+                                background = SET_BG_COLOR_YELLOW;
+                            }
+                        }
+                        System.out.print(background);
+                        System.out.print(EMPTY);
+                    }
+                } else {
+                    System.out.print(SET_BG_COLOR_DARK_GREY);
+                    if (board[i][j] != EMPTY) {
+                        String background = SET_BG_COLOR_DARK_GREY;
+                        for (ChessMove x :moves){
+                            if (x.getEndPosition().getRow()-1  == i && x.getEndPosition().getColumn()-1 ==j){
+                                background = SET_BG_COLOR_GREEN;
+                            }
+                            if (x.getStartPosition().getRow()-1 == i && x.getStartPosition().getColumn()-1==j){
+                                background = SET_BG_COLOR_YELLOW;
+                            }
+                        }
+                        System.out.print(background);
+                        System.out.print(SET_TEXT_COLOR_WHITE);
+                        System.out.print(board[i][j]);
+                    } else {
+                        String background = SET_BG_COLOR_DARK_GREY;
+                        for (ChessMove x :moves){
+                            if (x.getEndPosition().getRow()-1 == i && x.getEndPosition().getColumn()-1 ==j){
+                                background = SET_BG_COLOR_GREEN;
+                            }
+                            if (x.getStartPosition().getRow()-1 == i && x.getStartPosition().getColumn()-1 ==j){
+                                background = SET_BG_COLOR_YELLOW;
+                            }
+                        }
+                        System.out.print(background);
+                        System.out.print(EMPTY);
+                    }
+                }
+                System.out.print(SET_TEXT_COLOR_WHITE);
+                if (j == 7) {
+                    System.out.print(SET_BG_COLOR_LIGHT_GREY);
+                    System.out.print(" ");
+                    System.out.print(1+i);
+                    System.out.print(" ");
+                }
+
+            }
+            System.out.print(SET_BG_COLOR_DARK_GREY);
+            System.out.println();
+        }
+        System.out.print(SET_BG_COLOR_LIGHT_GREY);
+        System.out.print("    ");
+        for (int i = 0; i < 8; i++) {
+            System.out.print(SET_BG_COLOR_LIGHT_GREY);
+            char x = (char) ('a' + i);
+            System.out.print(x + "  ");
+        }
+        System.out.print(SET_BG_COLOR_LIGHT_GREY);
+        System.out.print("  ");
+        System.out.print(SET_BG_COLOR_BLACK);
+        System.out.println();
+    }
 }
 
 

@@ -1,5 +1,11 @@
 package chess;
 
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+
+import java.lang.reflect.Type;
 import java.util.Objects;
 
 public class ChessPositionImplmentation implements ChessPosition {
@@ -39,5 +45,11 @@ public class ChessPositionImplmentation implements ChessPosition {
     @Override
     public int hashCode() {
         return Objects.hash(row, column);
+    }
+    static class ListAdapter implements JsonDeserializer<ChessPosition> {
+        @Override
+        public ChessPosition deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            return jsonDeserializationContext.deserialize(jsonElement,ChessPositionImplmentation.class);
+        }
     }
 }

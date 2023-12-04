@@ -11,6 +11,7 @@ import spark.Response;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class ListGamesHandler{
 
@@ -24,8 +25,9 @@ public class ListGamesHandler{
                 ListGameService service = new ListGameService();
                 ListGamesResponse response1 = service.findGames(requested,connection);
                 response.status(response1.getCode());
+                connection.close();
                 return new Gson().toJson(response1);
-            } catch (DataAccessException ex) {
+            } catch (DataAccessException | SQLException ex) {
                 throw new RuntimeException(ex);
             }
         }

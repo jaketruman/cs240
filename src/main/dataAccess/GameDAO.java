@@ -53,6 +53,46 @@ public class GameDAO {
             e.printStackTrace();
         }
     }
+    public void update(ChessGameImplmentation game, String gameID){
+        String gameString = game2json(game);
+        String sql = "UPDATE game SET game = ? WHERE gameid = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, gameString);
+            stmt.setString(2, gameID);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public void delete(String gameID) {
+        String sql = "DELETE FROM game WHERE gameid = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, gameID);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public void updateWhite(String name, String gameID){
+        String sql = "UPDATE game SET whiteUsername = ? WHERE gameid = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, name);
+            stmt.setString(2, gameID);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public void updateBlack(String name, String gameID){
+        String sql = "UPDATE game SET blackUsername = ? WHERE gameid = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, name);
+            stmt.setString(2, gameID);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void insert(GameModel game, String gameID) throws DataAccessException {
         String gameString = game2json(game.getGameImplmentation());
@@ -71,6 +111,7 @@ public class GameDAO {
             throw new DataAccessException("Error encountered while inserting a user to the database");
         }
     }
+
 
     public GameModel find(String gameID) {
         GameModel gameModel;

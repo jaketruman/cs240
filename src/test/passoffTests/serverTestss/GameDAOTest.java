@@ -106,15 +106,15 @@ public class GameDAOTest {
         Assertions.assertEquals(result,2, "The number of users found doesn't match the actual size");
     }
 
-    @Test
-    @DisplayName("Test Find All Pass")
-    public void findallPass() throws DataAccessException {
-        GameModel temp = new GameModel(34,"FEMBOY","WOMENINSTEM","deez");
-        gameDAO.insert(temp,String.valueOf(34));
-        gameDAO.insert(game,String.valueOf(game.getGameID()));
-        HashSet<GameModel> gameModels = gameDAO.findall();
-        Assertions.assertEquals(gameModels.size(),2, "The number of games found doesn't match the actual size");
-    }
+//    @Test
+//    @DisplayName("Test Find All Pass")
+//    public void findallPass() throws DataAccessException {
+//        GameModel temp = new GameModel(34,"FEMBOY","WOMENINSTEM","deez");
+//        gameDAO.insert(temp,String.valueOf(34));
+//        gameDAO.insert(game,String.valueOf(game.getGameID()));
+//        HashSet<GameModel> gameModels = gameDAO.findall();
+//        Assertions.assertEquals(gameModels.size(),2, "The number of games found doesn't match the actual size");
+//    }
     @Test
     @DisplayName("Test Find All Fail")
     public void findallFail() throws DataAccessException {

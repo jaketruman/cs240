@@ -9,6 +9,7 @@ import spark.Response;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class ClearApplicationHandler {
 
@@ -20,9 +21,12 @@ public class ClearApplicationHandler {
             ClearApplicationResponse response1 = service.clear(connection);
             response.status(response1.getCode());
             response.body(response1.getResponse());
+            connection.close();
         } catch (DataAccessException e) {
            throw new RuntimeException(e);
-       }
+       } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         return "{}";
     }
 

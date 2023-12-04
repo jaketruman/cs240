@@ -35,7 +35,6 @@ public class ChessGameImplmentation implements ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
 
         if (board.getPiece(startPosition) == null ){
-            System.out.println("NULL START POSITION");
           return null;
         }
         ChessPiece piece = board.getPiece(startPosition);
@@ -125,7 +124,6 @@ public class ChessGameImplmentation implements ChessGame {
                 }
                 if (board.getPiece(position) != null && board.getPiece(position).getPieceType() == ChessPiece.PieceType.KING && board.getPiece(position).getTeamColor() == teamColor ){
                     king = position;
-                    System.out.println("King at,"+position.getRow()+", "+position.getColumn());
                 }
             }
         }

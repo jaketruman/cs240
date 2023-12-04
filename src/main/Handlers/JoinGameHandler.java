@@ -11,6 +11,7 @@ import spark.Response;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class JoinGameHandler{
     static public String handle(Request request, Response response) throws IOException {
@@ -24,8 +25,9 @@ public class JoinGameHandler{
             requested.setAuthToken(request.headers("Authorization"));
             JoinGameResponse response1 = service.Join(requested,connection);
             response.status(response1.getCode());
+            connection.close();
             return new Gson().toJson(response1);
-        } catch (DataAccessException ex) {
+        } catch (DataAccessException | SQLException ex) {
             throw new RuntimeException(ex);
         }
     }

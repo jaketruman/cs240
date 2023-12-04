@@ -11,6 +11,7 @@ import spark.Response;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class CreateGameHandler{
     public static String handle(Request request, Response response) throws IOException {
@@ -25,8 +26,9 @@ public class CreateGameHandler{
             CreateGameService service = new CreateGameService();
             CreateGameResponse responsed = service.create(requested, connection);
             response.status(responsed.getCode());
+            connection.close();
             return gson.toJson(responsed);
-        } catch (DataAccessException e) {
+        } catch (DataAccessException | SQLException e) {
             throw new RuntimeException(e);
         }
     }

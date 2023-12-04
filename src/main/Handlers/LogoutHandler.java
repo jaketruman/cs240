@@ -11,6 +11,7 @@ import spark.Response;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class LogoutHandler{
     public static String handle(Request request, Response response) throws IOException {
@@ -24,12 +25,13 @@ public class LogoutHandler{
             requested.setAuthToken(request.headers("Authorization"));
             LogoutResponse response1 = service.logout(requested,connection);
             response.status(response1.getCode());
+            connection.close();
             if (response1.isSuccess()){
                 return "{}";
             }
             else {
             return new Gson().toJson(response1);}
-        } catch (DataAccessException ex) {
+        } catch (DataAccessException | SQLException ex) {
             throw new RuntimeException(ex);
         }
     }
