@@ -6,7 +6,9 @@ import chess.ChessGameImplmentation;
 import chess.ChessPositionImplmentation;
 import chess.pieces.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
@@ -17,23 +19,37 @@ import webSocketMessages.userCommands.UserGameCommand;
 
 import javax.websocket.*;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URI;
 
+/**
+ * Dealing with websocket Client side is not bad, you just establish a connection with the server side and it stays open
+ * until it needs to be closed, and whenever a message comes through it gets handled.
+ *
+ * Best way to think about websockets in my opinion, The client side can send messages to the server and whatever
+ * messges can be sent to the server need to be handled there. Whatever messages can be sent to the client from the server need
+ * to be handled here.
+ *
+ * There is only 3 messages the client can get, Load (just print the board out), Notification(print the message attached to the
+ * notification), and Error(print the error)
+ *
+ * How it works:
+ * A player types a command, say Make Move, the Chess Client sends the move to the server,WSHANDLER,
+ * in WSHANDLER the move is made on the board, it then sends the updated board to WebsocketClient, WebsocketClient sees
+ * the message as a Load Message type. It then calls a Notification Handler function and that function takes a chess game,
+ * notificationHandler is an interface that is implemented in Chess Client, so the game is sent to the Chess Client where it is
+ * printed out, and now Chess Client is waiting for the next player to type a command.
+ *
+ * It basically is a giant circle, until a connection is closed
+ */
 
 public class WebSocketClient extends Endpoint {
-    public interface WebSocketClientObserver{
-        void updateBoard(String message);
-        void message();
-    }
+
 
     Session session;
     NotificationHandler notificationHandler;
 
     public WebSocketClient(String url, NotificationHandler handler) throws Exception {
-        //connect to the server and then sends cmd line args to socket on the server side
         this.notificationHandler = handler;
-        System.out.println("IN WS");
         URI uri = new URI(url);
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         this.session = container.connectToServer(this , uri);
@@ -43,31 +59,22 @@ public class WebSocketClient extends Endpoint {
                 try{
                 ServerMessage serverTalk = new Gson().fromJson(message, ServerMessage.class);
                 switch (serverTalk.getServerMessageType()) {
-                    //wtf is the response handler
-                    //I assume it is a class that redirects to the Server Messages
                     case LOAD_GAME:
                         notificationHandler.updateBoard(json2game(message));
-
                     case NOTIFICATION:
                         notificationHandler.message(new Gson().fromJson(message, NotificationMessage.class).message);
-
                     case ERROR:
                         notificationHandler.error(new Gson().fromJson(message, ErrorMessage.class).toString());
                 }
-
             }catch (Exception e){
                     e.printStackTrace();
                 }
             }
-
         });
-
-
     }
     public void send(UserGameCommand msg) throws Exception {
         this.session.getBasicRemote().sendText(new Gson().toJson(msg));
     }
-    //Is this an override, came when added the extends Endpoint
     @Override
     public void onOpen(javax.websocket.Session session, EndpointConfig endpointConfig) {
 
@@ -80,12 +87,6 @@ public class WebSocketClient extends Endpoint {
         return gson.fromJson(jsongame,ChessGameImplmentation.class);
 
     }
-    class ListAdapter implements JsonDeserializer<ChessGame> {
-        @Override
-        public ChessGame deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-            return jsonDeserializationContext.deserialize(jsonElement,ChessGameImplmentation.class);
-        }
-    }
 
     public static class GameAdapt extends TypeAdapter<ChessGameImplmentation> {
 
@@ -95,7 +96,7 @@ public class WebSocketClient extends Endpoint {
         }
 
         @Override
-        public ChessGameImplmentation read(JsonReader jsonReader) throws IOException, IOException {
+        public ChessGameImplmentation read(JsonReader jsonReader) throws IOException {
             ChessGameImplmentation model = new ChessGameImplmentation();
             ChessBoardImplmentation boardImplmentation = new ChessBoardImplmentation();
             jsonReader.beginObject();
@@ -107,13 +108,12 @@ public class WebSocketClient extends Endpoint {
                         String temp2 = jsonReader.nextName();
                         switch (temp2) {
                             default:
-                                jsonReader.skipValue(); // Skip unrecognized fields
+                                jsonReader.skipValue();
                                 break;
                             case "teamTurn":
                                 JsonToken teamTurn = jsonReader.peek();
                                 if (teamTurn == JsonToken.NULL) {
-                                    jsonReader.nextNull();  // Consume the null value
-                                    // Handle the case when whiteUsername is null, e.g., set a default value or do nothing
+                                    jsonReader.nextNull();
                                 } else {
                                     model.setTeamTurn(ChessGame.TeamColor.valueOf(jsonReader.nextString()));
                                 }
@@ -121,8 +121,7 @@ public class WebSocketClient extends Endpoint {
                             case "whiteUsername":
                                 JsonToken whiteUsernameToken = jsonReader.peek();
                                 if (whiteUsernameToken == JsonToken.NULL) {
-                                    jsonReader.nextNull();  // Consume the null value
-                                    // Handle the case when whiteUsername is null, e.g., set a default value or do nothing
+                                    jsonReader.nextNull();
                                 } else {
                                     model.setWhiteUsername(jsonReader.nextString());
                                 }
@@ -130,8 +129,7 @@ public class WebSocketClient extends Endpoint {
                             case "blackUsername":
                                 JsonToken blackusernameToken = jsonReader.peek();
                                 if (blackusernameToken == JsonToken.NULL) {
-                                    jsonReader.nextNull();  // Consume the null value
-                                    // Handle the case when whiteUsername is null, e.g., set a default value or do nothing
+                                    jsonReader.nextNull();
                                 } else {
                                     model.setBlackUsername(jsonReader.nextString());
                                 }
@@ -139,16 +137,15 @@ public class WebSocketClient extends Endpoint {
                             case "turnCount":
                                 JsonToken turnCount = jsonReader.peek();
                                 if (turnCount == JsonToken.NULL) {
-                                    jsonReader.nextNull();  // Consume the null value
-                                    // Handle the case when whiteUsername is null, e.g., set a default value or do nothing
+                                    jsonReader.nextNull();
                                 } else {
                                     model.setTurnCount(Integer.parseInt(jsonReader.nextString()));
                                 }
                                 break;
                             case "board":
-                                jsonReader.beginObject();  // Start reading the outer object
-                                jsonReader.nextName();  // Move to the inner "board" field
-                                jsonReader.beginArray();                            //jsonReader.nextString();
+                                jsonReader.beginObject();
+                                jsonReader.nextName();
+                                jsonReader.beginArray();
                                 int row = 0;
                                 while (jsonReader.hasNext()) {
                                     jsonReader.beginArray();
@@ -157,49 +154,48 @@ public class WebSocketClient extends Endpoint {
                                         ChessPositionImplmentation place = new ChessPositionImplmentation(col, row);
                                         JsonToken token = jsonReader.peek();
                                         if (token == JsonToken.NULL) {
-                                            jsonReader.nextNull();  // Consume the null value
+                                            jsonReader.nextNull();
                                             boardImplmentation.addPiece(place, null);
                                         } else {
                                             jsonReader.beginObject();
                                             String poop = jsonReader.nextName();
-                                            switch (poop) {
-                                                case "pieceType":
-                                                    String piece = jsonReader.nextString();
-                                                    jsonReader.nextName();
-                                                    String color = jsonReader.nextString();
-                                                    ChessGame.TeamColor teamColor = (color.equals("WHITE")) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
-                                                    switch (piece) {
-                                                        case "ROOK":
-                                                            RookImplmentation Rookimplmentation = new RookImplmentation(teamColor);
-                                                            boardImplmentation.addPiece(place, Rookimplmentation);
-                                                            jsonReader.endObject();
-                                                            break;
-                                                        case "PAWN":
-                                                            PawnImplmentation implmentation = new PawnImplmentation(teamColor);
-                                                            boardImplmentation.addPiece(place, implmentation);
-                                                            jsonReader.endObject();
-                                                            break;
-                                                        case "KNIGHT":
-                                                            KnightImplmentation knightImplmentation = new KnightImplmentation(teamColor);
-                                                            boardImplmentation.addPiece(place, knightImplmentation);
-                                                            jsonReader.endObject();
-                                                            break;
-                                                        case "QUEEN":
-                                                            QueenImplmentation queenImplmentation = new QueenImplmentation(teamColor);
-                                                            boardImplmentation.addPiece(place, queenImplmentation);
-                                                            jsonReader.endObject();
-                                                            break;
-                                                        case "KING":
-                                                            KingImplmentation kingImplmentation = new KingImplmentation(teamColor);
-                                                            boardImplmentation.addPiece(place, kingImplmentation);
-                                                            jsonReader.endObject();
-                                                            break;
-                                                        case "BISHOP":
-                                                            BishopImplmentation bishopImplmentation = new BishopImplmentation(teamColor);
-                                                            boardImplmentation.addPiece(place, bishopImplmentation);
-                                                            jsonReader.endObject();
-                                                            break;
-                                                    }
+                                            if (poop.equals("pieceType")) {
+                                                String piece = jsonReader.nextString();
+                                                jsonReader.nextName();
+                                                String color = jsonReader.nextString();
+                                                ChessGame.TeamColor teamColor = (color.equals("WHITE")) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+                                                switch (piece) {
+                                                    case "ROOK":
+                                                        RookImplmentation Rookimplmentation = new RookImplmentation(teamColor);
+                                                        boardImplmentation.addPiece(place, Rookimplmentation);
+                                                        jsonReader.endObject();
+                                                        break;
+                                                    case "PAWN":
+                                                        PawnImplmentation implmentation = new PawnImplmentation(teamColor);
+                                                        boardImplmentation.addPiece(place, implmentation);
+                                                        jsonReader.endObject();
+                                                        break;
+                                                    case "KNIGHT":
+                                                        KnightImplmentation knightImplmentation = new KnightImplmentation(teamColor);
+                                                        boardImplmentation.addPiece(place, knightImplmentation);
+                                                        jsonReader.endObject();
+                                                        break;
+                                                    case "QUEEN":
+                                                        QueenImplmentation queenImplmentation = new QueenImplmentation(teamColor);
+                                                        boardImplmentation.addPiece(place, queenImplmentation);
+                                                        jsonReader.endObject();
+                                                        break;
+                                                    case "KING":
+                                                        KingImplmentation kingImplmentation = new KingImplmentation(teamColor);
+                                                        boardImplmentation.addPiece(place, kingImplmentation);
+                                                        jsonReader.endObject();
+                                                        break;
+                                                    case "BISHOP":
+                                                        BishopImplmentation bishopImplmentation = new BishopImplmentation(teamColor);
+                                                        boardImplmentation.addPiece(place, bishopImplmentation);
+                                                        jsonReader.endObject();
+                                                        break;
+                                                }
                                             }
                                         }
 
@@ -220,7 +216,6 @@ public class WebSocketClient extends Endpoint {
 
             }
                 else if (temp.equals("serverMessageType")) {
-                    // Skip the value of "serverMessageType"
                     jsonReader.skipValue();}
             }
 

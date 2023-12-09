@@ -10,9 +10,9 @@ import java.util.HashSet;
 
 public class BishopImplmentation implements ChessPiece {
     @JsonProperty("pieceType")
-    private PieceType pieceType = PieceType.BISHOP;
+    private final PieceType pieceType = PieceType.BISHOP;
     @JsonProperty("teamColor")
-    private ChessGame.TeamColor teamColor;
+    private final ChessGame.TeamColor teamColor;
 
     public BishopImplmentation(ChessGame.TeamColor teamColor){
         this.teamColor = teamColor;

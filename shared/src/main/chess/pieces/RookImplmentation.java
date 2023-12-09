@@ -10,10 +10,10 @@ import java.util.HashSet;
 
 public class RookImplmentation implements ChessPiece {
     @JsonProperty("pieceType")
-    private PieceType pieceType = PieceType.ROOK;
+    private final PieceType pieceType = PieceType.ROOK;
 
     @JsonProperty("teamColor")
-    private ChessGame.TeamColor teamColor;
+    private final ChessGame.TeamColor teamColor;
     public RookImplmentation(ChessGame.TeamColor teamColor){
         this.teamColor = teamColor;
     }

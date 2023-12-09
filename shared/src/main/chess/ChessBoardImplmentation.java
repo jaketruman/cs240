@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ChessBoardImplmentation implements ChessBoard {
     @JsonProperty("board")
-    private ChessPiece[][] board = new ChessPiece[9][9];
+    private final ChessPiece[][] board = new ChessPiece[9][9];
     public ChessPiece[][] getBoard(){
         return board;
     }

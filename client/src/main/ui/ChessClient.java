@@ -15,6 +15,20 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 
+/**
+ * This and the WSHANDLER are the most painful classes ever
+ *
+ * This implements the NotificationHandler class, basically means that when the WebSocketClient receives any
+ * message from the server side it will call whatever type of message it is and this class will then execute it.
+ * There is some more documentation in the WebSocketClient class about this process.
+ *
+ * This class is the UI that handles all commandline arguments in a terminal window and allows the user to actually play the game,
+ * Not the hardest code but when you have to implement the websockets it sucks.
+ *
+ * The last lines have the implementation of the Notification Handler, which are essential, they are called when a user makes a move
+ * and it will print the updated board and the notification that someone has moved.
+ */
+
 public class ChessClient implements NotificationHandler {
     public ServerFacade server;
     public WebSocketClient webSocket;
@@ -96,19 +110,12 @@ public class ChessClient implements NotificationHandler {
 
 
         }else if (in_game) {
-//            if (game.isInCheckmate(teamColor)){
-//                System.out.println("You are in checkmate gg ez");
-//            }
-//            if (game.isInCheck(teamColor)){
-//                System.out.println("You are in check");
-//            }
             if (commandLine.toLowerCase().contains("help")){
                 return  "Help: Lists possible commands you can execute \n" +
                         "Move: Make a valid move \n" +
                         "High: Highlight valid moves\n"+
                         "Resign: Resign from the game\n"+
-                        "Leave: Leave the game\n"
-                        ;
+                        "Leave: Leave the game\n";
             }
              else if (commandLine.toLowerCase().contains("move")){
                 String temp = makeMove(Arrays.toString(length));
@@ -122,11 +129,9 @@ public class ChessClient implements NotificationHandler {
             }
              else if (commandLine.toLowerCase().contains("resign")){
                 resign();
-                //in_game =false;
             }
             else if (commandLine.toLowerCase().contains("redraw")){
                 redraw();
-
             }
         }
         return "";
@@ -188,7 +193,6 @@ public class ChessClient implements NotificationHandler {
         if (args.length ==2 ){
             JoinGameResponse response = server.joinGame(args[1]);
             if(response.getCode() ==200){
-                //add the ws command
                 JoinObserver observer = new JoinObserver(UserGameCommand.CommandType.JOIN_OBSERVER,userAuth,args[1],username);
                 webSocket.send(observer);
                 return ("Congrats you joined  "+ args[1]);
@@ -264,8 +268,8 @@ public class ChessClient implements NotificationHandler {
         ChessPositionImplmentation start = postionFromChar(move.substring(7,9));
         ChessPositionImplmentation end = postionFromChar(move.substring(9,11));
         ChessMoveImplmentation moveImplmentation = new ChessMoveImplmentation(start,end);
-        if (game.validMoves(start).isEmpty()){
-            return "You are in checkmate pls leave the game nerd             ";
+        if (game.validMoves(start)==null){
+            return "You are in checkmate pls leave the game nerd";
         }
         if (!game.validMoves(start).contains(moveImplmentation)){
             return "That move is not valid";
@@ -279,7 +283,6 @@ public class ChessClient implements NotificationHandler {
         if (color != null){
             if (color.equals("white")){
                 ChessBoardCringe.white();
-
             }
             if (Objects.equals(color, "black")){
                 ChessBoardCringe.black();
@@ -293,7 +296,6 @@ public class ChessClient implements NotificationHandler {
         int colum =Integer.parseInt(String.valueOf(moves.charAt(1)));
         return new ChessPositionImplmentation(colum ,row);
     }
-
 
     @Override
     public void updateBoard(ChessGameImplmentation gameImplmentation) {

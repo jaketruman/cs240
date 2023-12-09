@@ -9,9 +9,9 @@ import java.util.*;
 
 public class KnightImplmentation implements ChessPiece {
     @JsonProperty("pieceType")
-    private PieceType pieceType = PieceType.KNIGHT;
+    private final PieceType pieceType = PieceType.KNIGHT;
     @JsonProperty("teamColor")
-    private ChessGame.TeamColor teamColor;
+    private final ChessGame.TeamColor teamColor;
 
     public KnightImplmentation(ChessGame.TeamColor teamColor){
         this.teamColor = teamColor;

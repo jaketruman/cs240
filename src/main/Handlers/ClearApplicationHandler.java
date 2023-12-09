@@ -11,6 +11,11 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+/**
+ * Ok beast mode these are annoying but not too bad.
+ * Handlers are going to create a connection to the database and then send a request to the service class corresponding
+ * to the Handler. The service is going to return a response and that is what is returned
+ */
 public class ClearApplicationHandler {
 
     static public String handle(Request request, Response response) throws IOException {

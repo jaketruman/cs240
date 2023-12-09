@@ -38,7 +38,7 @@ public class CreateGameService {
             GameModel model = new GameModel(gameid, request.getWhiteUsername(),request.getWhiteUsername(),request.getGameName(),chessGameImplmentation);
             gameDAO.insert(model, String.valueOf(gameid));
             response.setGameID(String.valueOf(gameid));
-            System.out.println("GAME CREATE ID"+String.valueOf(gameid) );
+            System.out.println("GAME CREATE ID"+ gameid);
             response.setCode(200);
             return response;
         } catch (Exception e) {

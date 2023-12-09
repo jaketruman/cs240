@@ -15,7 +15,7 @@ public class ChessBoardCringe {
     private static final int LINE_WIDTH_IN_CHARS = 1;
 
 
-    private static Random rand = new Random();
+    private static final Random rand = new Random();
     public static String[][] board = {
             {WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_KING, WHITE_QUEEN, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK},
             {WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN},

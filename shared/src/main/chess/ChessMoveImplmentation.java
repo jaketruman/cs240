@@ -3,8 +3,8 @@ package chess;
 import java.util.Objects;
 
 public class ChessMoveImplmentation implements ChessMove {
-    private ChessPosition start;
-    private ChessPosition end;
+    private final ChessPosition start;
+    private final ChessPosition end;
     private ChessPiece.PieceType promotionPiece;
 
     public ChessMoveImplmentation(ChessPosition startSquare, ChessPosition endSquare, ChessPiece.PieceType pieceType) {

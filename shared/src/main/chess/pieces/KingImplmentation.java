@@ -11,9 +11,9 @@ import java.util.Objects;
 
 public class KingImplmentation implements ChessPiece {
     @JsonProperty("pieceType")
-    private PieceType pieceType = PieceType.KING;
+    private final PieceType pieceType = PieceType.KING;
     @JsonProperty("teamColor")
-    private ChessGame.TeamColor teamColor;
+    private final ChessGame.TeamColor teamColor;
 
     public KingImplmentation(ChessGame.TeamColor teamColor){
         this.teamColor = teamColor;

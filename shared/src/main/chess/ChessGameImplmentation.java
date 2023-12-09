@@ -233,9 +233,7 @@ public class ChessGameImplmentation implements ChessGame {
                     last.add(move);
                 }
             }
-            if (last.isEmpty()){
-                return true;
-            }
+            return last.isEmpty();
         }
         return false;
     }

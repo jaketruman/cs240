@@ -9,6 +9,17 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * This class is all about sending HTTP requests to the server and getting the response back.
+ *
+ * All of these methods are called in the Chess Client
+ *
+ * Basic concept is to set a connection to the server at the url corresponding to the request
+ * and then create a new request, you have to set a Request Method and for some you have to set a request header
+ *
+ * There are some like methods that have empty bodies and they are treated differently becuase for some reason
+ * the test cases will auto update to a different method if there is a null body, I belive Logout is the main one that caused problems
+ */
 public class ServerFacade {
     public String serverURl;
     public String userAuth;
@@ -33,7 +44,6 @@ public class ServerFacade {
             requestBody.write(jsonRequest.getBytes());
         }
         httpURLConnection.connect();
-        //get and set the response
         ClearApplicationResponse response = new ClearApplicationResponse();
         response.setCode(httpURLConnection.getResponseCode());
         return response;
@@ -60,7 +70,7 @@ public class ServerFacade {
         httpURLConnection.connect();
         try (InputStream responseBody = httpURLConnection.getInputStream()){
             InputStreamReader reader = new InputStreamReader(responseBody);
-            response = new Gson().fromJson((Reader) reader, (Type) RegisterResponse.class);
+            response = new Gson().fromJson(reader, (Type) RegisterResponse.class);
             userAuth = response.getAuthToken();
             return response;
         }
@@ -89,7 +99,7 @@ public class ServerFacade {
         httpURLConnection.connect();
         try (InputStream responseBody = httpURLConnection.getInputStream()) {
             InputStreamReader reader = new InputStreamReader(responseBody);
-            response = new Gson().fromJson((Reader) reader, (Type) LoginResponse.class);
+            response = new Gson().fromJson(reader, (Type) LoginResponse.class);
             userAuth = response.getAuthtoken();
             return response;
         }}else {
@@ -159,7 +169,7 @@ public class ServerFacade {
         if (response_code == 200){
         try (InputStream responseBody = httpURLConnection.getInputStream()) {
             InputStreamReader reader = new InputStreamReader(responseBody);
-            return new Gson().fromJson((Reader) reader, (Type) JoinGameResponse.class);
+            return new Gson().fromJson(reader, (Type) JoinGameResponse.class);
         }
         }else {
             JoinGameResponse response = new JoinGameResponse();
@@ -186,7 +196,7 @@ public class ServerFacade {
         try (InputStream responseBody = httpURLConnection.getInputStream()) {
             InputStreamReader reader = new InputStreamReader(responseBody);
             //ChessBoardCringe.main(new String[]{"BLACK"});
-            return new Gson().fromJson((Reader) reader, (Type) JoinGameResponse.class);
+            return new Gson().fromJson(reader, (Type) JoinGameResponse.class);
         }}else{
             JoinGameResponse response = new JoinGameResponse();
             response.setCode(httpURLConnection.getResponseCode());

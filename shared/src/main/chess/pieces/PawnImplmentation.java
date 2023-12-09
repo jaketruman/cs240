@@ -11,9 +11,9 @@ import java.util.Objects;
 
 public class PawnImplmentation implements ChessPiece {
     @JsonProperty("pieceType")
-    private PieceType pieceType = PieceType.PAWN;
+    private final PieceType pieceType = PieceType.PAWN;
     @JsonProperty("teamColor")
-    private ChessGame.TeamColor teamColor;
+    private final ChessGame.TeamColor teamColor;
 
     public PawnImplmentation(ChessGame.TeamColor teamColor){
         this.teamColor =teamColor;

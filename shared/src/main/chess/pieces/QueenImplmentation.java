@@ -10,10 +10,10 @@ import java.util.HashSet;
 
 public class QueenImplmentation implements ChessPiece {
     @JsonProperty("pieceType")
-    private PieceType pieceType = PieceType.QUEEN;
+    private final PieceType pieceType = PieceType.QUEEN;
 
     @JsonProperty("teamColor")
-    private ChessGame.TeamColor teamColor;
+    private final ChessGame.TeamColor teamColor;
     public QueenImplmentation(ChessGame.TeamColor teamColor){
         this.teamColor = teamColor;
     }

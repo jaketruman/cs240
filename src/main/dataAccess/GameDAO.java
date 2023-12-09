@@ -20,6 +20,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
+
+/**
+ * Here is an example of the database access objects, basically they just execute sql commands
+ *
+ * They are pretty straight forward and the same for pretty much all the database tables
+ */
 public class GameDAO {
     private final Connection connection;
 
@@ -206,7 +212,7 @@ public class GameDAO {
             }
 
             @Override
-            public ChessGameImplmentation read(JsonReader jsonReader) throws IOException, IOException {
+            public ChessGameImplmentation read(JsonReader jsonReader) throws IOException {
                 ChessGameImplmentation model = new ChessGameImplmentation();
                 ChessBoardImplmentation boardImplmentation = new ChessBoardImplmentation();
                 jsonReader.beginObject();
@@ -265,44 +271,43 @@ public class GameDAO {
                                     } else {
                                         jsonReader.beginObject();
                                         String poop = jsonReader.nextName();
-                                        switch (poop) {
-                                            case "pieceType":
-                                                String piece = jsonReader.nextString();
-                                                jsonReader.nextName();
-                                                String color = jsonReader.nextString();
-                                                ChessGame.TeamColor teamColor = (color.equals("WHITE")) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
-                                                switch (piece) {
-                                                    case "ROOK":
-                                                            RookImplmentation Rookimplmentation = new RookImplmentation(teamColor);
-                                                            boardImplmentation.addPiece(place, Rookimplmentation);
-                                                            jsonReader.endObject();
-                                                            break;
-                                                    case "PAWN":
-                                                            PawnImplmentation implmentation = new PawnImplmentation(teamColor);
-                                                            boardImplmentation.addPiece(place, implmentation);
-                                                            jsonReader.endObject();
-                                                            break;
-                                                    case "KNIGHT":
-                                                        KnightImplmentation knightImplmentation = new KnightImplmentation(teamColor);
-                                                        boardImplmentation.addPiece(place, knightImplmentation);
-                                                        jsonReader.endObject();
-                                                        break;
-                                                    case "QUEEN":
-                                                        QueenImplmentation queenImplmentation = new QueenImplmentation(teamColor);
-                                                        boardImplmentation.addPiece(place, queenImplmentation);
-                                                        jsonReader.endObject();
-                                                        break;
-                                                    case "KING":
-                                                        KingImplmentation kingImplmentation = new KingImplmentation(teamColor);
-                                                        boardImplmentation.addPiece(place, kingImplmentation);
-                                                        jsonReader.endObject();
-                                                        break;
-                                                    case "BISHOP":
-                                                        BishopImplmentation bishopImplmentation = new BishopImplmentation(teamColor);
-                                                        boardImplmentation.addPiece(place, bishopImplmentation);
-                                                        jsonReader.endObject();
-                                                        break;
-                                                }
+                                        if (poop.equals("pieceType")) {
+                                            String piece = jsonReader.nextString();
+                                            jsonReader.nextName();
+                                            String color = jsonReader.nextString();
+                                            ChessGame.TeamColor teamColor = (color.equals("WHITE")) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+                                            switch (piece) {
+                                                case "ROOK":
+                                                    RookImplmentation Rookimplmentation = new RookImplmentation(teamColor);
+                                                    boardImplmentation.addPiece(place, Rookimplmentation);
+                                                    jsonReader.endObject();
+                                                    break;
+                                                case "PAWN":
+                                                    PawnImplmentation implmentation = new PawnImplmentation(teamColor);
+                                                    boardImplmentation.addPiece(place, implmentation);
+                                                    jsonReader.endObject();
+                                                    break;
+                                                case "KNIGHT":
+                                                    KnightImplmentation knightImplmentation = new KnightImplmentation(teamColor);
+                                                    boardImplmentation.addPiece(place, knightImplmentation);
+                                                    jsonReader.endObject();
+                                                    break;
+                                                case "QUEEN":
+                                                    QueenImplmentation queenImplmentation = new QueenImplmentation(teamColor);
+                                                    boardImplmentation.addPiece(place, queenImplmentation);
+                                                    jsonReader.endObject();
+                                                    break;
+                                                case "KING":
+                                                    KingImplmentation kingImplmentation = new KingImplmentation(teamColor);
+                                                    boardImplmentation.addPiece(place, kingImplmentation);
+                                                    jsonReader.endObject();
+                                                    break;
+                                                case "BISHOP":
+                                                    BishopImplmentation bishopImplmentation = new BishopImplmentation(teamColor);
+                                                    boardImplmentation.addPiece(place, bishopImplmentation);
+                                                    jsonReader.endObject();
+                                                    break;
+                                            }
                                         }
                                     }
 
